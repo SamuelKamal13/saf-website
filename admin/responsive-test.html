@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار التصميم المتجاوب - لوحة التحكم</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <style>
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .test-title {
+            color: #8b0000;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 10px;
+        }
+        
+        .device-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+        
+        .responsive-test {
+            display: grid;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .test-item {
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 4px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        @media (max-width: 767px) {
+            .mobile-only { display: block !important; }
+            .desktop-only { display: none !important; }
+        }
+        
+        @media (min-width: 768px) {
+            .mobile-only { display: none !important; }
+            .desktop-only { display: block !important; }
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .badge-desktop { background: #4caf50; color: white; }
+        .badge-tablet { background: #ff9800; color: white; }
+        .badge-mobile { background: #2196F3; color: white; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1>⛪ اختبار التصميم المتجاوب</h1>
+            <div class="user-info">
+                <span>معاينة التجاوب</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Device Info -->
+        <div class="test-section">
+            <h2 class="test-title">📱 معلومات الجهاز الحالي</h2>
+            <div class="device-info">
+                <div><strong>عرض الشاشة:</strong> <span id="screenWidth"></span> × <span id="screenHeight"></span></div>
+                <div><strong>عرض النافذة:</strong> <span id="windowWidth"></span> × <span id="windowHeight"></span></div>
+                <div><strong>نسبة البكسل:</strong> <span id="pixelRatio"></span></div>
+                <div><strong>الاتجاه:</strong> <span id="orientation"></span></div>
+                <div><strong>نوع الجهاز:</strong> 
+                    <span class="desktop-only status-badge badge-desktop">💻 Desktop</span>
+                    <span class="mobile-only status-badge badge-mobile">📱 Mobile</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid Test -->
+        <div class="test-section">
+            <h2 class="test-title">📊 اختبار شبكة الإحصائيات</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #8b0000;">👥</div>
+                    <div class="stat-info">
+                        <h3>120</h3>
+                        <p>إجمالي المستخدمين</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #d4af37;">📅</div>
+                    <div class="stat-info">
+                        <h3>45</h3>
+                        <p>إجمالي الفعاليات</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #4caf50;">✓</div>
+                    <div class="stat-info">
+                        <h3>890</h3>
+                        <p>إجمالي الحضور</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background-color: #800020;">📢</div>
+                    <div class="stat-info">
+                        <h3>23</h3>
+                        <p>الإعلانات</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons Test -->
+        <div class="test-section">
+            <h2 class="test-title">🔘 اختبار الأزرار</h2>
+            <div class="responsive-test" style="gap: 10px;">
+                <button class="btn btn-primary">زر أساسي</button>
+                <button class="btn btn-success">زر نجاح</button>
+                <button class="btn btn-danger">زر خطر</button>
+                <button class="btn btn-warning">زر تحذير</button>
+            </div>
+        </div>
+
+        <!-- Table Test -->
+        <div class="test-section">
+            <h2 class="test-title">📋 اختبار الجداول</h2>
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>الاسم</th>
+                            <th>البريد الإلكتروني</th>
+                            <th>الهاتف</th>
+                            <th>الدور</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>أحمد محمد</td>
+                            <td>ahmed@example.com</td>
+                            <td>01012345678</td>
+                            <td><span class="badge badge-info">عضو</span></td>
+                            <td><span class="badge badge-success">نشط</span></td>
+                            <td>
+                                <button class="btn btn-warning btn-sm">تعديل</button>
+                                <button class="btn btn-danger btn-sm">حذف</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>فاطمة علي</td>
+                            <td>fatima@example.com</td>
+                            <td>01098765432</td>
+                            <td><span class="badge badge-warning">خادم</span></td>
+                            <td><span class="badge badge-success">نشط</span></td>
+                            <td>
+                                <button class="btn btn-warning btn-sm">تعديل</button>
+                                <button class="btn btn-danger btn-sm">حذف</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>محمود سعيد</td>
+                            <td>mahmoud@example.com</td>
+                            <td>01154321098</td>
+                            <td><span class="badge badge-danger">مسؤول</span></td>
+                            <td><span class="badge badge-success">نشط</span></td>
+                            <td>
+                                <button class="btn btn-warning btn-sm">تعديل</button>
+                                <button class="btn btn-danger btn-sm">حذف</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                💡 <strong>ملاحظة:</strong> على الشاشات الصغيرة، يمكنك التمرير أفقياً لرؤية جميع الأعمدة
+            </p>
+        </div>
+
+        <!-- Form Test -->
+        <div class="test-section">
+            <h2 class="test-title">📝 اختبار النماذج</h2>
+            <div class="form-group">
+                <label>الاسم الكامل</label>
+                <input type="text" class="form-control" placeholder="أدخل الاسم">
+            </div>
+            <div class="form-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" class="form-control" placeholder="example@domain.com">
+            </div>
+            <div class="form-group">
+                <label>الدور</label>
+                <select class="form-control">
+                    <option>عضو</option>
+                    <option>خادم</option>
+                    <option>مسؤول</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>الوصف</label>
+                <textarea class="form-control" placeholder="اكتب وصفاً..."></textarea>
+            </div>
+            <div class="d-flex gap-10">
+                <button class="btn btn-primary">حفظ</button>
+                <button class="btn btn-danger">إلغاء</button>
+            </div>
+        </div>
+
+        <!-- Responsive Tests Results -->
+        <div class="test-section">
+            <h2 class="test-title">✅ نتائج اختبار التجاوب</h2>
+            <div class="responsive-test">
+                <div class="test-item" id="test-xl">
+                    <strong>XL (≥1200px):</strong> <span class="result"></span>
+                </div>
+                <div class="test-item" id="test-lg">
+                    <strong>LG (992-1199px):</strong> <span class="result"></span>
+                </div>
+                <div class="test-item" id="test-md">
+                    <strong>MD (768-991px):</strong> <span class="result"></span>
+                </div>
+                <div class="test-item" id="test-sm">
+                    <strong>SM (576-767px):</strong> <span class="result"></span>
+                </div>
+                <div class="test-item" id="test-xs">
+                    <strong>XS (≤575px):</strong> <span class="result"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="test-section">
+            <h2 class="test-title">💡 نصائح الاختبار</h2>
+            <div style="line-height: 2;">
+                <p>✅ جرب تغيير حجم النافذة</p>
+                <p>✅ اختبر في وضع Portrait و Landscape</p>
+                <p>✅ افتح DevTools واختر أجهزة مختلفة</p>
+                <p>✅ تحقق من سهولة النقر على الأزرار</p>
+                <p>✅ جرب التمرير في الجداول على الموبايل</p>
+                <p>✅ تأكد من وضوح النصوص وسهولة قراءتها</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update device info
+        function updateDeviceInfo() {
+            document.getElementById('screenWidth').textContent = screen.width;
+            document.getElementById('screenHeight').textContent = screen.height;
+            document.getElementById('windowWidth').textContent = window.innerWidth;
+            document.getElementById('windowHeight').textContent = window.innerHeight;
+            document.getElementById('pixelRatio').textContent = window.devicePixelRatio;
+            document.getElementById('orientation').textContent = 
+                window.innerWidth > window.innerHeight ? 'Landscape 🔄' : 'Portrait 📱';
+            
+            // Update breakpoint tests
+            const width = window.innerWidth;
+            
+            document.querySelector('#test-xl .result').textContent = 
+                width >= 1200 ? '✅ نشط' : '❌ غير نشط';
+            document.querySelector('#test-lg .result').textContent = 
+                width >= 992 && width < 1200 ? '✅ نشط' : '❌ غير نشط';
+            document.querySelector('#test-md .result').textContent = 
+                width >= 768 && width < 992 ? '✅ نشط' : '❌ غير نشط';
+            document.querySelector('#test-sm .result').textContent = 
+                width >= 576 && width < 768 ? '✅ نشط' : '❌ غير نشط';
+            document.querySelector('#test-xs .result').textContent = 
+                width < 576 ? '✅ نشط' : '❌ غير نشط';
+                
+            // Highlight active breakpoint
+            document.querySelectorAll('.test-item').forEach(item => {
+                const result = item.querySelector('.result').textContent;
+                if (result.includes('✅')) {
+                    item.style.background = '#c8e6c9';
+                    item.style.borderLeftColor = '#4caf50';
+                } else {
+                    item.style.background = '#e3f2fd';
+                    item.style.borderLeftColor = '#2196F3';
+                }
+            });
+        }
+
+        // Update on load and resize
+        updateDeviceInfo();
+        window.addEventListener('resize', updateDeviceInfo);
+        window.addEventListener('orientationchange', updateDeviceInfo);
+        
+        // Update every second for real-time feedback
+        setInterval(updateDeviceInfo, 1000);
+    </script>
+</body>
+</html>

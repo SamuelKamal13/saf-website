@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Test - Attendance Tracker</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        background: #f9f9f9;
+        border-left: 4px solid #4caf50;
+      }
+      .test-section h3 {
+        margin-top: 0;
+      }
+      button {
+        background: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        margin: 5px;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+      button:hover {
+        background: #45a049;
+      }
+      .result {
+        margin-top: 10px;
+        padding: 10px;
+        background: #e8f5e9;
+        border-radius: 4px;
+        white-space: pre-wrap;
+        font-family: monospace;
+        font-size: 12px;
+      }
+      .error {
+        background: #ffebee;
+        color: #c62828;
+      }
+      .success {
+        background: #e8f5e9;
+        color: #2e7d32;
+      }
+      .info {
+        background: #e3f2fd;
+        color: #1565c0;
+      }
+      input {
+        padding: 8px;
+        margin: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        width: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧪 Attendance Tracker API Test</h1>
+      <p>Use this page to test your API endpoints</p>
+
+      <!-- Configuration -->
+      <div class="test-section">
+        <h3>⚙️ Configuration</h3>
+        <label>API Base URL:</label>
+        <input
+          type="text"
+          id="baseUrl"
+          value="http://localhost:8080/dashboard/attendance_api/api"
+        />
+        <button onclick="saveConfig()">Save</button>
+        <div id="configResult" class="result info" style="display: none"></div>
+      </div>
+
+      <!-- Test 1: Get Announcements -->
+      <div class="test-section">
+        <h3>1️⃣ Test: Get Announcements</h3>
+        <p>Tests if API can connect to database and retrieve data</p>
+        <button onclick="testGetAnnouncements()">Run Test</button>
+        <div id="result1" class="result" style="display: none"></div>
+      </div>
+
+      <!-- Test 2: Get Events -->
+      <div class="test-section">
+        <h3>2️⃣ Test: Get Events</h3>
+        <p>Tests events endpoint</p>
+        <button onclick="testGetEvents()">Run Test</button>
+        <div id="result2" class="result" style="display: none"></div>
+      </div>
+
+      <!-- Test 3: Login -->
+      <div class="test-section">
+        <h3>3️⃣ Test: Login</h3>
+        <p>Tests authentication endpoint</p>
+        <input
+          type="email"
+          id="loginEmail"
+          placeholder="Email"
+          value="admin@church.com"
+        />
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="Password"
+          value="admin123"
+        />
+        <button onclick="testLogin()">Login</button>
+        <div id="result3" class="result" style="display: none"></div>
+      </div>
+
+      <!-- Test 4: Get User (Requires Token) -->
+      <div class="test-section">
+        <h3>4️⃣ Test: Get User Profile</h3>
+        <p>Tests authenticated endpoint (run login first)</p>
+        <button onclick="testGetUser()">Get Profile</button>
+        <div id="result4" class="result" style="display: none"></div>
+      </div>
+
+      <!-- Test 5: Register -->
+      <div class="test-section">
+        <h3>5️⃣ Test: Register New User</h3>
+        <input type="text" id="regName" placeholder="Name" value="Test User" />
+        <input
+          type="email"
+          id="regEmail"
+          placeholder="Email"
+          value="test@example.com"
+        />
+        <input
+          type="password"
+          id="regPassword"
+          placeholder="Password"
+          value="test123"
+        />
+        <button onclick="testRegister()">Register</button>
+        <div id="result5" class="result" style="display: none"></div>
+      </div>
+    </div>
+
+    <script>
+      let token = "";
+      let baseUrl = "http://localhost:8080/dashboard/attendance_api/api";
+
+      function saveConfig() {
+        baseUrl = document.getElementById("baseUrl").value;
+        localStorage.setItem("apiBaseUrl", baseUrl);
+        showResult("configResult", "✅ Configuration saved!", "info");
+      }
+
+      function showResult(elementId, message, type = "success") {
+        const element = document.getElementById(elementId);
+        element.textContent = message;
+        element.className = "result " + type;
+        element.style.display = "block";
+      }
+
+      async function testGetAnnouncements() {
+        try {
+          const response = await fetch(`${baseUrl}/get_announcements.php`);
+          const data = await response.json();
+
+          if (data.success) {
+            showResult(
+              "result1",
+              `✅ SUCCESS!\n\nFound ${data.data.count} announcements\n\n` +
+                JSON.stringify(data, null, 2),
+              "success"
+            );
+          } else {
+            showResult("result1", "❌ ERROR: " + data.message, "error");
+          }
+        } catch (error) {
+          showResult("result1", "❌ NETWORK ERROR: " + error.message, "error");
+        }
+      }
+
+      async function testGetEvents() {
+        try {
+          const response = await fetch(`${baseUrl}/get_events.php`);
+          const data = await response.json();
+
+          if (data.success) {
+            showResult(
+              "result2",
+              `✅ SUCCESS!\n\nFound ${data.data.count} events\n\n` +
+                JSON.stringify(data, null, 2),
+              "success"
+            );
+          } else {
+            showResult("result2", "❌ ERROR: " + data.message, "error");
+          }
+        } catch (error) {
+          showResult("result2", "❌ NETWORK ERROR: " + error.message, "error");
+        }
+      }
+
+      async function testLogin() {
+        try {
+          const email = document.getElementById("loginEmail").value;
+          const password = document.getElementById("loginPassword").value;
+
+          const response = await fetch(`${baseUrl}/login.php`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            token = data.data.token;
+            showResult(
+              "result3",
+              `✅ LOGIN SUCCESS!\n\nToken saved for authenticated requests\n\n` +
+                JSON.stringify(data, null, 2),
+              "success"
+            );
+          } else {
+            showResult("result3", "❌ LOGIN FAILED: " + data.message, "error");
+          }
+        } catch (error) {
+          showResult("result3", "❌ NETWORK ERROR: " + error.message, "error");
+        }
+      }
+
+      async function testGetUser() {
+        if (!token) {
+          showResult(
+            "result4",
+            "❌ Please login first to get a token",
+            "error"
+          );
+          return;
+        }
+
+        try {
+          const response = await fetch(`${baseUrl}/get_user.php`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            showResult(
+              "result4",
+              `✅ SUCCESS!\n\nUser profile retrieved\n\n` +
+                JSON.stringify(data, null, 2),
+              "success"
+            );
+          } else {
+            showResult("result4", "❌ ERROR: " + data.message, "error");
+          }
+        } catch (error) {
+          showResult("result4", "❌ NETWORK ERROR: " + error.message, "error");
+        }
+      }
+
+      async function testRegister() {
+        try {
+          const name = document.getElementById("regName").value;
+          const email = document.getElementById("regEmail").value;
+          const password = document.getElementById("regPassword").value;
+
+          const response = await fetch(`${baseUrl}/register.php`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ name, email, password }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            showResult(
+              "result5",
+              `✅ REGISTRATION SUCCESS!\n\n` + JSON.stringify(data, null, 2),
+              "success"
+            );
+          } else {
+            showResult(
+              "result5",
+              "❌ REGISTRATION FAILED: " + data.message,
+              "error"
+            );
+          }
+        } catch (error) {
+          showResult("result5", "❌ NETWORK ERROR: " + error.message, "error");
+        }
+      }
+
+      // Load saved config
+      window.onload = function () {
+        const savedUrl = localStorage.getItem("apiBaseUrl");
+        if (savedUrl) {
+          baseUrl = savedUrl;
+          document.getElementById("baseUrl").value = savedUrl;
+        }
+      };
+    </script>
+  </body>
+</html>
