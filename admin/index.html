@@ -1,958 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href="img/logo.png" type="image/x-icon">
-    <title>لوحة التحكم - نظام الحضور</title>
-    <link rel="stylesheet" href="css/admin.css" />
-    <style>
-      body {
-        font-family: "Segoe UI", "Cairo", "Tahoma", Arial, sans-serif;
-      }
-      .rtl-support {
-        direction: rtl;
-        text-align: right;
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Header -->
-    <header class="header">
-      <div class="container">
-        <h1>⛪لوحة تحكم برنامج اسرة القديس اغسطينوس</h1>
-        <div class="user-info">
-          <span id="adminName">مدير النظام</span>
-          <button class="btn btn-danger btn-sm" onclick="logout()">
-            تسجيل الخروج
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- Main Content -->
-    <div class="container">
-      <!-- Navigation Tabs -->
-      <div class="nav-tabs">
-        <div class="nav-tab active" onclick="switchTab('dashboard')">
-          لوحة المعلومات
-        </div>
-        <div class="nav-tab" onclick="switchTab('users')">المستخدمين</div>
-        <div class="nav-tab" onclick="switchTab('events')">الفعاليات</div>
-        <div class="nav-tab" onclick="switchTab('barcodes')">
-          الباركودات المشتركة
-        </div>
-        <div class="nav-tab" onclick="switchTab('attendance')">سجل الحضور</div>
-        <div class="nav-tab" onclick="switchTab('announcements')">
-          الإعلانات
-        </div>
-        <div class="nav-tab" onclick="switchTab('reflections')">
-          التأملات الروحية
-        </div>
-        <div class="nav-tab" onclick="switchTab('categories')">
-          تصنيفات التأملات
-        </div>
-        <div class="nav-tab" onclick="switchTab('notifications')">
-          الإشعارات
-        </div>
-      </div>
-
-      <!-- Alert Container -->
-      <div id="alertContainer"></div>
-
-      <!-- Dashboard Tab -->
-      <div id="dashboardTab" class="tab-content">
-        <h2 class="mb-20">نظرة عامة على لوحة المعلومات</h2>
-
-        <!-- Statistics Grid -->
-        <div class="stats-grid" id="statsGrid">
-          <div class="stat-card">
-            <div class="stat-icon" style="background-color: #8b0000">👥</div>
-            <div class="stat-info">
-              <h3 id="totalUsers">0</h3>
-              <p>إجمالي المستخدمين</p>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background-color: #d4af37">📅</div>
-            <div class="stat-info">
-              <h3 id="totalEvents">0</h3>
-              <p>إجمالي الفعاليات</p>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background-color: #4caf50">✓</div>
-            <div class="stat-info">
-              <h3 id="totalAttendance">0</h3>
-              <p>إجمالي الحضور</p>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon" style="background-color: #800020">📢</div>
-            <div class="stat-info">
-              <h3 id="totalAnnouncements">0</h3>
-              <p>الإعلانات</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">النشاط الأخير</h3>
-          </div>
-          <div id="recentActivity">
-            <p class="text-center">جاري تحميل النشاط الأخير...</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Users Tab -->
-      <div id="usersTab" class="tab-content d-none">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">إدارة المستخدمين</h3>
-            <button class="btn btn-primary" onclick="showAddUserModal()">
-              + إضافة مستخدم
-            </button>
-          </div>
-          <div id="usersTableContainer">
-            <div class="loading">
-              <div class="spinner"></div>
-              <p>جاري تحميل المستخدمين...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Events Tab -->
-      <div id="eventsTab" class="tab-content d-none">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">إدارة الفعاليات</h3>
-            <button class="btn btn-primary" onclick="showAddEventModal()">
-              + إضافة فعالية
-            </button>
-          </div>
-          <div id="eventsTableContainer">
-            <div class="loading">
-              <div class="spinner"></div>
-              <p>جاري تحميل الفعاليات...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Shared Barcodes Tab -->
-      <div id="barcodesTab" class="tab-content d-none">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">الباركودات المشتركة للفعاليات</h3>
-            <button class="btn btn-info" onclick="loadSharedBarcodes()">
-              🔄 تحديث
-            </button>
-          </div>
-          <div id="barcodesContainer">
-            <div class="loading">
-              <div class="spinner"></div>
-              <p>جاري تحميل الباركودات المشتركة...</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top: 20px">
-          <div class="card-header">
-            <h3 class="card-title">📱 كيفية استخدام الباركودات المشتركة</h3>
-          </div>
-          <div style="padding: 20px">
-            <div
-              style="
-                background: #f8f9fa;
-                padding: 15px;
-                border-radius: 8px;
-                margin-bottom: 15px;
-              "
-            >
-              <h4 style="color: #8b0000; margin-top: 0">✨ النظام الجديد</h4>
-              <p>
-                ✅ كل نوع فعالية له باركود واحد ثابت (القداس، التسبحة، الاجتماع،
-                النشاط)
-              </p>
-              <p>✅ عند المسح، يتم تسجيل الحضور بالتاريخ والوقت الفعلي</p>
-              <p>✅ إذا لم توجد فعالية لليوم، يتم إنشاؤها تلقائياً</p>
-              <p>✅ لا حاجة لإنشاء فعالية جديدة كل مرة</p>
-            </div>
-
-            <div
-              style="
-                background: #fff3cd;
-                padding: 15px;
-                border-radius: 8px;
-                border-left: 4px solid #ffc107;
-              "
-            >
-              <h4 style="color: #856404; margin-top: 0">📋 مثال عملي</h4>
-              <ol style="line-height: 2">
-                <li>
-                  <strong>يوم الأحد 8:00 ص</strong> - شخص يمسح باركود "القداس" →
-                  يتم تسجيل حضوره الساعة 8:00
-                </li>
-                <li>
-                  <strong>يوم الأحد 9:30 ص</strong> - شخص آخر يمسح نفس باركود
-                  "القداس" → يتم تسجيل حضوره الساعة 9:30
-                </li>
-                <li>
-                  <strong>الأحد القادم</strong> - يستخدمون نفس الباركود، ويتم
-                  تسجيل فعالية جديدة ليوم جديد
-                </li>
-              </ol>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Attendance Tab -->
-      <div id="attendanceTab" class="tab-content d-none">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">سجلات الحضور</h3>
-            <button class="btn btn-success" onclick="exportAttendance()">
-              📥 تصدير
-            </button>
-          </div>
-          <div id="attendanceTableContainer">
-            <div class="loading">
-              <div class="spinner"></div>
-              <p>جاري تحميل سجلات الحضور...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Announcements Tab -->
-      <div id="announcementsTab" class="tab-content d-none">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">إدارة الإعلانات</h3>
-            <button
-              class="btn btn-primary"
-              onclick="showAddAnnouncementModal()"
-            >
-              + إضافة إعلان
-            </button>
-          </div>
-          <div id="announcementsTableContainer">
-            <div class="loading">
-              <div class="spinner"></div>
-              <p>جاري تحميل الإعلانات...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Reflections Tab -->
-      <div id="reflectionsTab" class="tab-content d-none">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">إدارة التأملات الروحية</h3>
-            <button class="btn btn-primary" onclick="showAddReflectionModal()">
-              + إضافة تأمل
-            </button>
-          </div>
-          <div id="reflectionsTableContainer">
-            <div class="loading">
-              <div class="spinner"></div>
-              <p>جاري تحميل التأملات...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Categories Tab -->
-      <div id="categoriesTab" class="tab-content d-none">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">🏷️ إدارة تصنيفات التأملات</h3>
-            <button class="btn btn-primary" onclick="showAddCategoryModal()">
-              + إضافة تصنيف
-            </button>
-          </div>
-          <div id="categoriesTableContainer">
-            <div class="loading">
-              <div class="spinner"></div>
-              <p>جاري تحميل التصنيفات...</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top: 20px">
-          <div class="card-header">
-            <h3 class="card-title">ℹ️ معلومات عن التصنيفات</h3>
-          </div>
-          <div style="padding: 20px">
-            <div
-              style="
-                background: #f8f9fa;
-                padding: 15px;
-                border-radius: 8px;
-                margin-bottom: 15px;
-              "
-            >
-              <h4 style="color: #8b0000; margin-top: 0">
-                📌 كيفية استخدام التصنيفات
-              </h4>
-              <ul style="line-height: 2">
-                <li>يمكنك إضافة تصنيفات جديدة حسب احتياجات الكنيسة</li>
-                <li>كل تصنيف له اسم بالعربية والإنجليزية</li>
-                <li>يمكنك تخصيص أيقونة ولون لكل تصنيف</li>
-                <li>ترتيب العرض يحدد كيف تظهر التصنيفات في التطبيق</li>
-                <li>يمكنك تعطيل التصنيفات دون حذفها</li>
-              </ul>
-            </div>
-            <div
-              style="
-                background: #fff3cd;
-                padding: 15px;
-                border-radius: 8px;
-                border-left: 4px solid #ffc107;
-              "
-            >
-              <h4 style="color: #856404; margin-top: 0">⚠️ ملاحظات هامة</h4>
-              <ul style="line-height: 2">
-                <li>لا يمكن حذف تصنيف يحتوي على تأملات</li>
-                <li>يجب نقل التأملات إلى تصنيف آخر قبل الحذف</li>
-                <li>الأيقونات المستخدمة هي emoji</li>
-                <li>الألوان بصيغة hex (#RRGGBB)</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Add User Modal -->
-    <div id="userModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>إضافة مستخدم جديد</h2>
-          <span class="close-modal" onclick="closeModal('userModal')"
-            >&times;</span
-          >
-        </div>
-        <form id="userForm" onsubmit="saveUser(event)">
-          <div class="form-group">
-            <label>الاسم الكامل *</label>
-            <input type="text" class="form-control" name="name" required />
-          </div>
-          <div class="form-group">
-            <label>البريد الإلكتروني *</label>
-            <input type="email" class="form-control" name="email" required />
-          </div>
-          <div class="form-group">
-            <label>رقم الهاتف *</label>
-            <input
-              type="tel"
-              class="form-control"
-              name="phone"
-              pattern="^01[0-9]{9}$"
-              maxlength="11"
-              placeholder="01xxxxxxxxx"
-              required
-            />
-          </div>
-          <div class="form-group" id="passwordField">
-            <label>كلمة المرور *</label>
-            <input
-              type="password"
-              class="form-control"
-              name="password"
-              minlength="6"
-            />
-          </div>
-          <div class="form-group">
-            <label>الدور الوظيفي *</label>
-            <select class="form-control" name="role" required>
-              <option value="member">عضو</option>
-              <option value="servant">خادم</option>
-              <option value="admin">مسؤول</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>
-              <input type="checkbox" name="is_active" value="1" checked />
-              مستخدم نشط
-            </label>
-          </div>
-          <div class="d-flex gap-10">
-            <button type="submit" class="btn btn-primary">حفظ المستخدم</button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              onclick="closeModal('userModal')"
-            >
-              إلغاء
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Add Event Modal -->
-    <div id="eventModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>إضافة فعالية جديدة</h2>
-          <span class="close-modal" onclick="closeModal('eventModal')"
-            >&times;</span
-          >
-        </div>
-        <form id="eventForm" onsubmit="saveEvent(event)">
-          <div class="form-group">
-            <label>اسم الفعالية *</label>
-            <input type="text" class="form-control" name="name" required />
-          </div>
-          <div class="form-group">
-            <label>نوع الفعالية *</label>
-            <select class="form-control" name="type" required>
-              <option value="mass">القداس الإلهي</option>
-              <option value="tasbeha">التسبحة</option>
-              <option value="meeting">اجتماع</option>
-              <option value="activity">نشاط</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>التاريخ والوقت *</label>
-            <input
-              type="datetime-local"
-              class="form-control"
-              name="date"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label>رمز الحضور (Barcode/QR) *</label>
-            <input type="text" class="form-control" name="barcode" required />
-          </div>
-          <div class="form-group">
-            <label>الوصف</label>
-            <textarea class="form-control" name="description"></textarea>
-          </div>
-          <div class="form-group">
-            <label>الموقع</label>
-            <input type="text" class="form-control" name="location" />
-          </div>
-          <div class="d-flex gap-10">
-            <button type="submit" class="btn btn-primary">حفظ الفعالية</button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              onclick="closeModal('eventModal')"
-            >
-              إلغاء
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Add Announcement Modal -->
-    <div id="announcementModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>إضافة إعلان جديد</h2>
-          <span class="close-modal" onclick="closeModal('announcementModal')"
-            >&times;</span
-          >
-        </div>
-        <form id="announcementForm" onsubmit="saveAnnouncement(event)">
-          <div class="form-group">
-            <label>العنوان *</label>
-            <input
-              type="text"
-              class="form-control"
-              name="title"
-              required
-              maxlength="100"
-            />
-          </div>
-          <div class="form-group">
-            <label>المحتوى *</label>
-            <textarea
-              class="form-control"
-              name="content"
-              required
-              maxlength="500"
-            ></textarea>
-          </div>
-          <div class="form-group">
-            <label>
-              <input type="checkbox" name="is_pinned" value="1" />
-              تثبيت هذا الإعلان
-            </label>
-          </div>
-          <div class="d-flex gap-10">
-            <button type="submit" class="btn btn-primary">حفظ الإعلان</button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              onclick="closeModal('announcementModal')"
-            >
-              إلغاء
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Add Reflection Modal -->
-    <div id="reflectionModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>إضافة تأمل روحي جديد</h2>
-          <span class="close-modal" onclick="closeModal('reflectionModal')"
-            >&times;</span
-          >
-        </div>
-        <form id="reflectionForm" onsubmit="saveReflection(event)">
-          <div class="form-group">
-            <label>العنوان *</label>
-            <input
-              type="text"
-              class="form-control"
-              name="title"
-              required
-              maxlength="100"
-            />
-          </div>
-          <div class="form-group">
-            <label>المحتوى *</label>
-            <textarea class="form-control" name="content" required></textarea>
-          </div>
-          <div class="form-group">
-            <label>التصنيف *</label>
-            <select
-              class="form-control"
-              name="category"
-              id="reflectionCategorySelect"
-              required
-            >
-              <option value="">جاري التحميل...</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>رابط الصورة</label>
-            <input
-              type="url"
-              class="form-control"
-              name="image_url"
-              placeholder="https://example.com/image.jpg"
-              onchange="previewReflectionImage()"
-            />
-            <img
-              id="imagePreview"
-              style="
-                display: none;
-                margin-top: 10px;
-                max-width: 100%;
-                max-height: 200px;
-                border-radius: 8px;
-              "
-              alt="معاينة الصورة"
-            />
-          </div>
-          <div class="d-flex gap-10">
-            <button type="submit" class="btn btn-primary">حفظ التأمل</button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              onclick="closeModal('reflectionModal')"
-            >
-              إلغاء
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Add/Edit Category Modal -->
-    <div id="categoryModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 id="categoryModalTitle">إضافة تصنيف جديد</h2>
-          <span class="close-modal" onclick="closeModal('categoryModal')"
-            >&times;</span
-          >
-        </div>
-        <form id="categoryForm" onsubmit="saveCategory(event)">
-          <input type="hidden" name="id" value="" />
-          <div class="form-group">
-            <label>الاسم بالعربية *</label>
-            <input
-              type="text"
-              class="form-control"
-              name="name_ar"
-              required
-              maxlength="100"
-              placeholder="مثال: الصلاة"
-            />
-          </div>
-          <div class="form-group">
-            <label>الاسم بالإنجليزية *</label>
-            <input
-              type="text"
-              class="form-control"
-              name="name_en"
-              required
-              maxlength="100"
-              placeholder="مثال: Prayer"
-            />
-          </div>
-          <div class="form-group">
-            <label>الوصف</label>
-            <textarea
-              class="form-control"
-              name="description"
-              rows="3"
-              placeholder="وصف التصنيف (اختياري)"
-            ></textarea>
-          </div>
-          <div class="form-group">
-            <label>الأيقونة (Emoji) *</label>
-            <input
-              type="text"
-              class="form-control"
-              name="icon"
-              required
-              maxlength="10"
-              placeholder="مثال: 🙏 أو 📖"
-              style="font-size: 24px"
-            />
-            <small style="color: #666">
-              يمكنك نسخ emoji من
-              <a href="https://emojipedia.org" target="_blank">Emojipedia</a>
-            </small>
-          </div>
-          <div class="form-group">
-            <label>اللون *</label>
-            <div style="display: flex; gap: 10px; align-items: center">
-              <input
-                type="color"
-                class="form-control"
-                name="color"
-                required
-                value="#8B0000"
-                style="width: 80px; height: 40px; padding: 5px"
-              />
-              <input
-                type="text"
-                class="form-control"
-                id="colorHex"
-                value="#8B0000"
-                pattern="^#[0-9A-Fa-f]{6}$"
-                maxlength="7"
-                placeholder="#8B0000"
-                onchange="document.querySelector('[name=color]').value = this.value"
-                style="width: 120px"
-              />
-              <span id="colorPreview" style="font-size: 18px">⬤</span>
-            </div>
-          </div>
-          <div class="form-group">
-            <label>ترتيب العرض *</label>
-            <input
-              type="number"
-              class="form-control"
-              name="display_order"
-              required
-              min="0"
-              value="0"
-              placeholder="0"
-            />
-            <small style="color: #666"> رقم أصغر = يظهر أولاً </small>
-          </div>
-          <div class="form-group">
-            <label>
-              <input type="checkbox" name="is_active" value="1" checked />
-              تصنيف نشط
-            </label>
-          </div>
-          <div class="d-flex gap-10">
-            <button type="submit" class="btn btn-primary">حفظ التصنيف</button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              onclick="closeModal('categoryModal')"
-            >
-              إلغاء
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Notifications Tab -->
-    <div id="notificationsTab" class="tab-content d-none">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">🔔 إدارة الإشعارات</h3>
-          <button class="btn btn-primary" onclick="showAddNotificationModal()">
-            + إنشاء إشعار جديد
-          </button>
-        </div>
-
-        <!-- Filter Tabs -->
-        <div
-          style="
-            padding: 15px;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-          "
-        >
-          <span style="font-weight: 600; color: #666; margin-left: 10px"
-            >الفلترة:</span
-          >
-          <button
-            class="btn btn-sm btn-primary"
-            id="filterAll"
-            onclick="filterNotifications('all', this)"
-            style="min-width: 100px"
-          >
-            📋 الكل
-          </button>
-          <button
-            class="btn btn-sm"
-            id="filterSent"
-            onclick="filterNotifications('sent', this)"
-            style="min-width: 100px; background: #4caf50; color: white"
-          >
-            ✓ المرسلة
-          </button>
-          <button
-            class="btn btn-sm"
-            id="filterScheduled"
-            onclick="filterNotifications('scheduled', this)"
-            style="min-width: 100px; background: #ff9800; color: white"
-          >
-            🕐 المجدولة
-          </button>
-        </div>
-
-        <div id="notificationsTableContainer">
-          <div class="loading">
-            <div class="spinner"></div>
-            <p>جاري تحميل الإشعارات...</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Statistics Card -->
-      <div class="card" style="margin-top: 20px">
-        <div class="card-header">
-          <h3 class="card-title">📊 إحصائيات الإشعارات</h3>
-        </div>
-        <div id="notificationStats" style="padding: 20px">
-          <p class="text-center">جاري تحميل الإحصائيات...</p>
-        </div>
-      </div>
-
-      <!-- Info Card -->
-      <div class="card" style="margin-top: 20px">
-        <div class="card-header">
-          <h3 class="card-title">ℹ️ كيفية استخدام نظام الإشعارات</h3>
-        </div>
-        <div style="padding: 20px">
-          <div
-            style="
-              background: #f8f9fa;
-              padding: 15px;
-              border-radius: 8px;
-              margin-bottom: 15px;
-            "
-          >
-            <h4 style="color: #8b0000; margin-top: 0">✨ أنواع الإشعارات</h4>
-            <ul style="line-height: 2">
-              <li><strong>فورية:</strong> يتم إرسالها مباشرة عند الإنشاء</li>
-              <li><strong>مجدولة:</strong> يتم إرسالها في وقت محدد</li>
-              <li>
-                <strong>متكررة:</strong> يتم إرسالها بشكل يومي/أسبوعي/شهري
-              </li>
-              <li>
-                <strong>تلقائية:</strong> يتم إرسالها عند إضافة تأمل أو إعلان
-                جديد
-              </li>
-            </ul>
-          </div>
-
-          <div
-            style="
-              background: #fff3cd;
-              padding: 15px;
-              border-radius: 8px;
-              border-left: 4px solid #ffc107;
-            "
-          >
-            <h4 style="color: #856404; margin-top: 0">📋 الفئات المستهدفة</h4>
-            <ul style="line-height: 2">
-              <li><strong>الكل:</strong> جميع المستخدمين النشطين</li>
-              <li><strong>الأعضاء:</strong> المستخدمون بدور "عضو"</li>
-              <li><strong>الخدام:</strong> المستخدمون بدور "خادم"</li>
-              <li><strong>المسؤولين:</strong> المستخدمون بدور "مسؤول"</li>
-              <li><strong>مخصص:</strong> اختيار مستخدمين محددين</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Add/Edit Notification Modal -->
-    <div id="notificationModal" class="modal">
-      <div class="modal-content" style="max-width: 700px">
-        <div class="modal-header">
-          <h2 id="notificationModalTitle">إنشاء إشعار جديد</h2>
-          <span class="close-modal" onclick="closeModal('notificationModal')"
-            >&times;</span
-          >
-        </div>
-        <form id="notificationForm" onsubmit="saveNotification(event)">
-          <div class="form-group">
-            <label>العنوان *</label>
-            <input
-              type="text"
-              class="form-control"
-              name="title"
-              required
-              maxlength="200"
-              placeholder="عنوان الإشعار"
-            />
-          </div>
-
-          <div class="form-group">
-            <label>المحتوى *</label>
-            <textarea
-              class="form-control"
-              name="body"
-              required
-              rows="4"
-              placeholder="محتوى الإشعار"
-            ></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>النوع</label>
-            <select class="form-control" name="type">
-              <option value="custom">مخصص</option>
-              <option value="announcement">إعلان</option>
-              <option value="reflection">تأمل</option>
-              <option value="event">فعالية</option>
-              <option value="system">نظام</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>الأولوية</label>
-            <select class="form-control" name="priority">
-              <option value="normal">عادي</option>
-              <option value="high">عالي</option>
-              <option value="low">منخفض</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>
-              <input
-                type="checkbox"
-                name="send_immediately"
-                value="1"
-                checked
-                onchange="toggleScheduleFields()"
-              />
-              إرسال فوري
-            </label>
-          </div>
-
-          <div id="scheduleFields" style="display: none">
-            <div class="form-group">
-              <label>موعد الإرسال</label>
-              <input
-                type="datetime-local"
-                class="form-control"
-                name="scheduled_at"
-              />
-            </div>
-
-            <div class="form-group">
-              <label>التكرار</label>
-              <select class="form-control" name="repeat_type">
-                <option value="none">بدون تكرار</option>
-                <option value="daily">يومي</option>
-                <option value="weekly">أسبوعي</option>
-                <option value="monthly">شهري</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>الفئة المستهدفة</label>
-            <select
-              class="form-control"
-              name="target_users"
-              onchange="toggleSpecificUsers()"
-            >
-              <option value="all">الكل</option>
-              <option value="members">الأعضاء فقط</option>
-              <option value="servants">الخدام فقط</option>
-              <option value="admins">المسؤولين فقط</option>
-              <option value="specific">مستخدمين محددين</option>
-            </select>
-          </div>
-
-          <div id="specificUsersField" class="form-group" style="display: none">
-            <label>اختر المستخدمين</label>
-            <select
-              class="form-control"
-              name="specific_user_ids"
-              multiple
-              size="5"
-              id="specificUsersList"
-            >
-              <!-- سيتم ملؤها ديناميكياً -->
-            </select>
-            <small style="color: #666">اضغط Ctrl للاختيار المتعدد</small>
-          </div>
-
-          <div class="d-flex gap-10">
-            <button type="submit" class="btn btn-primary">إرسال الإشعار</button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              onclick="closeModal('notificationModal')"
-            >
-              إلغاء
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <script src="js/admin.js?v=9.0"></script>
-    <script>
-      // تحديث معاينة اللون
-      document
-        .querySelector('[name="color"]')
-        .addEventListener("change", function () {
-          document.getElementById("colorHex").value = this.value;
-          document.getElementById("colorPreview").style.color = this.value;
-        });
-
-      document
-        .getElementById("colorHex")
-        .addEventListener("input", function () {
-          if (this.value.match(/^#[0-9A-Fa-f]{6}$/)) {
-            document.querySelector('[name="color"]').value = this.value;
-            document.getElementById("colorPreview").style.color = this.value;
-          }
-        });
-    </script>
-  </body>
-</html>

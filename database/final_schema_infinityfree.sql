@@ -1,10 +1,11 @@
 -- Attendance and Absence Tracking App Database Schema
--- Created: October 6, 2025
--- Database: attendance_app
+-- Created: October 17, 2025
+-- Database: if0_40147034_saf_app_db
+-- Compatible with InfinityFree hosting (no Views, no Procedures, no Triggers)
 
 -- Create database if not exists
-CREATE DATABASE IF NOT EXISTS attendance_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE attendance_app;
+CREATE DATABASE IF NOT EXISTS if0_40147034_saf_app_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE if0_40147034_saf_app_db;
 
 -- ========================================
 -- Table: users
@@ -82,6 +83,45 @@ CREATE TABLE IF NOT EXISTS announcements (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ========================================
+-- Table: reflection_categories
+-- ========================================
+CREATE TABLE IF NOT EXISTS reflection_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name_ar VARCHAR(100) NOT NULL UNIQUE COMMENT 'الاسم بالعربية',
+    name_en VARCHAR(100) NOT NULL UNIQUE COMMENT 'الاسم بالإنجليزية',
+    description TEXT COMMENT 'وصف التصنيف',
+    icon VARCHAR(50) COMMENT 'أيقونة التصنيف (emoji أو اسم أيقونة)',
+    color VARCHAR(7) DEFAULT '#8B0000' COMMENT 'لون التصنيف (hex)',
+    display_order INT DEFAULT 0 COMMENT 'ترتيب العرض',
+    is_active TINYINT(1) DEFAULT 1 COMMENT 'هل التصنيف نشط',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_is_active (is_active),
+    INDEX idx_display_order (display_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ========================================
+-- Table: reflections
+-- ========================================
+CREATE TABLE IF NOT EXISTS reflections (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    category VARCHAR(100),
+    category_id INT DEFAULT NULL,
+    image_url VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_date (date),
+    INDEX idx_author (author),
+    INDEX idx_category (category),
+    INDEX idx_category_id (category_id),
+    FOREIGN KEY (category_id) REFERENCES reflection_categories(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ========================================
 -- Table: event_type_barcodes
 -- ========================================
 CREATE TABLE IF NOT EXISTS event_type_barcodes (
@@ -98,13 +138,19 @@ CREATE TABLE IF NOT EXISTS event_type_barcodes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ========================================
--- Insert default shared barcodes for event types
+-- Table: sessions (for authentication tokens)
 -- ========================================
-INSERT INTO event_type_barcodes (event_type, barcode, arabic_name, description, is_active) VALUES
-('mass', 'MASS_SHARED', 'القداس الإلهي', 'باركود مشترك لجميع القداسات', 1),
-('tasbeha', 'TASBEHA_SHARED', 'التسبحة', 'باركود مشترك لجميع التسابيح', 1),
-('meeting', 'MEETING_SHARED', 'الاجتماع', 'باركود مشترك لجميع الاجتماعات', 1),
-('activity', 'ACTIVITY_SHARED', 'النشاط', 'باركود مشترك لجميع الأنشطة', 1);
+CREATE TABLE IF NOT EXISTS sessions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    token VARCHAR(255) NOT NULL UNIQUE,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_token (token),
+    INDEX idx_user (user_id),
+    INDEX idx_expires (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ========================================
 -- Table: notifications
@@ -124,30 +170,35 @@ CREATE TABLE IF NOT EXISTS notifications (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ========================================
--- Table: reflection_categories
+-- Table: notification_logs
 -- ========================================
-CREATE TABLE IF NOT EXISTS reflection_categories (
+CREATE TABLE IF NOT EXISTS notification_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_name (name)
+    notification_id INT NOT NULL,
+    user_id INT NOT NULL,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_read BOOLEAN DEFAULT FALSE COMMENT 'هل قرأ المستخدم الإشعار',
+    read_at DATETIME NULL,
+    FOREIGN KEY (notification_id) REFERENCES notifications(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_id (user_id),
+    INDEX idx_notification_id (notification_id),
+    INDEX idx_is_read (is_read),
+    UNIQUE KEY unique_notification_user (notification_id, user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ========================================
--- Table: sessions (for authentication tokens)
+-- Table: pending_notifications
 -- ========================================
-CREATE TABLE IF NOT EXISTS sessions (
+CREATE TABLE IF NOT EXISTS pending_notifications (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    token VARCHAR(255) NOT NULL UNIQUE,
-    expires_at DATETIME NOT NULL,
+    notification_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_token (token),
-    INDEX idx_user (user_id),
-    INDEX idx_expires (expires_at)
+    FOREIGN KEY (notification_id) REFERENCES notifications(id) ON DELETE CASCADE,
+    INDEX idx_user_id (user_id),
+    UNIQUE KEY unique_pending (user_id, notification_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ========================================
@@ -177,6 +228,26 @@ INSERT INTO announcements (title, content, author, is_pinned) VALUES
 -- ========================================
 INSERT INTO reflections (title, content, author, category) VALUES
 ('Daily Meditation on Faith', 'Faith is not just believing, but trusting in God\'s plan for us. Let us strengthen our faith through prayer and service.', 'Father John', 'Faith');
+
+-- ========================================
+-- Insert default shared barcodes for event types
+-- ========================================
+INSERT INTO event_type_barcodes (event_type, barcode, arabic_name, description, is_active) VALUES
+('mass', 'MASS_SHARED', 'القداس الإلهي', 'باركود مشترك لجميع القداسات', 1),
+('tasbeha', 'TASBEHA_SHARED', 'التسبحة', 'باركود مشترك لجميع التسابيح', 1),
+('meeting', 'MEETING_SHARED', 'الاجتماع', 'باركود مشترك لجميع الاجتماعات', 1),
+('activity', 'ACTIVITY_SHARED', 'النشاط', 'باركود مشترك لجميع الأنشطة', 1);
+
+-- ========================================
+-- Insert default reflection categories
+-- ========================================
+INSERT INTO reflection_categories (name_ar, name_en, description, icon, color, display_order, is_active) VALUES
+('الصلاة', 'Prayer', 'تأملات وتعاليم عن الصلاة والحياة الصلائية', '🙏', '#8B0000', 1, 1),
+('دراسة الكتاب المقدس', 'Bible Study', 'تأملات في نصوص الكتاب المقدس وشروحاته', '📖', '#D4AF37', 2, 1),
+('القديسين', 'Saints', 'سير وتعاليم القديسين والآباء', '✨', '#800020', 3, 1),
+('الروحانية', 'Spirituality', 'تأملات في الحياة الروحية والنمو الروحي', '💫', '#4B0082', 4, 1),
+('الأسرة', 'Family', 'تأملات عن الأسرة المسيحية والعلاقات الأسرية', '👨‍👩‍👧‍👦', '#2E8B57', 5, 1),
+('الشباب', 'Youth', 'تأملات موجهة للشباب والفتيات', '🌟', '#1E90FF', 6, 1);
 
 -- ========================================
 -- End of schema

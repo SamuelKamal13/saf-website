@@ -9,10 +9,10 @@
 date_default_timezone_set('Africa/Cairo');  // Egypt timezone (UTC+2)
 
 // Database credentials
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'attendance_app');
+define('DB_HOST', 'sql300.infinityfree.com');
+define('DB_USER', 'if0_40147034');
+define('DB_PASS', 'SamuelK13');
+define('DB_NAME', 'if0_40147034_saf_app_db');
 
 // Database connection using PDO
 class Database {
@@ -47,7 +47,7 @@ class Database {
 
 // API Configuration
 define('API_VERSION', '1.0');
-define('TOKEN_EXPIRY_HOURS', 24);
+define('TOKEN_EXPIRY_HOURS', 8760); // تم تغيير المدة من 24 ساعة إلى سنة كاملة (365 يوم × 24 ساعة)
 
 // CORS headers for Flutter app
 header("Access-Control-Allow-Origin: *");
